@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+</head>
+
+<body>
+    <div class="container-fluid #d50000 red accent-4 header">
+        <h1>
+            Netflix Movie Selector
+        </h1>
+        <div class="pulse" id="pulsing"></div>
+    </div>
+
+    <div class="container-fluid searching">
+        <div class="row">
+            <div class="input-field col s3">
+                <select id='countries'>
+                    <option value="" disabled selected>Choose your country</option>
+                    <option value="23">Australia</option>
+                    <option value="33">Canada</option>
+                    <option value="327">Greece</option>
+                    <option value="337">India</option>
+                    <option value="55">Ireland</option>
+                    <option value="391">Pakistan</option>
+                    <option value="46">United Kingdom</option>
+                    <option value="78">United States</option>
+                </select>
+            </div>
+
+            <div class="input-field col s3">
+                <select id='genres'>
+                    <option value="" disabled selected>Choose your genre</option>
+                    <option value="801362">Action</option>
+                    <option value="7442">Adventure</option>
+                    <option value="7424">Anime</option>
+                    <option value="6548">Comedy</option>
+                    <option value="5763">Drama</option>
+                    <option value="8711">Horror</option>
+                    <option value="13335">Musical</option>
+                    <option value="1255">Romance Drama</option>
+                </select>
+            </div>
+
+            <div class="input-field col s3">
+                <select id='selections'>
+                    <option value="" disabled selected>Number of suggestions</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+            </div>
+
+            <button id="searchBtn" class="btn col s3">
+                Movie Search
+            </button>
+        </div>
+
+
+    </div>
+    <div class="carousel carousel-slider center moviez">
+
+    </div>
+    <div class="container-fluid #d50000 white header">
+            <h2>
+               Random Releases In Your Country
+            </h2>
+            <div class="pulse"></div>
+    <div class="row" style = "background-color: darkred; ">
+        <div class="col s3" ><img class="materialboxed" id="1" data-caption="PlaceHolder" width="200"
+                src="https://www.comicgeekos.com/blog/wp-content/uploads/2018/11/Netflix-Logo-small-Transparent.png"></div>
+        <div class="col s3" ><img class="materialboxed"  id="2" data-caption="PlaceHolder" width="200"
+                src="https://www.comicgeekos.com/blog/wp-content/uploads/2018/11/Netflix-Logo-small-Transparent.png"></div>
+                <div class="col s3" ><img class="materialboxed"  id="3" data-caption="PlaceHolder" width="200"
+                    src="https://www.comicgeekos.com/blog/wp-content/uploads/2018/11/Netflix-Logo-small-Transparent.png"></div>
+            <div class="col s3" ><img class="materialboxed" data-caption="PlaceHolder"  id="4" width="200"
+                    src="https://www.comicgeekos.com/blog/wp-content/uploads/2018/11/Netflix-Logo-small-Transparent.png"></div>
+                
+
+
+    </div>
+
+
+
+
+    <script>
+        $(document).ready(function () {
+            $('select').formSelect();
+            $('.materialboxed').materialbox();
+
+            function ajaxCall(currentCity) 
+            {
+                
+                var codesForCountries = 
+                {
+                'AU': '23',
+                'CA': '33',
+                'GR': '327',
+                'IN': '337',
+                'IE': '55',
+                'PK': '391',
+                'UK': '46',
+                'US': '78'
+                }
+                
+                var code = currentCity;
+
+                if (codesForCountries[code] !== null && codesForCountries[code] !== undefined && codesForCountries[code] !== 0) 
+                {
+                    
+                    var whatCode = codesForCountries[code];
+                    var genreArray = ["801362", "7442","7424", "6548", "5763", "8711", "13335", "1255"];
+                    var randomNum = Math.floor(Math.random() * genreArray.length);
+                    var whatGenre = genreArray[randomNum];
+                    
+                    var search = "https://unogs-unogs-v1.p.rapidapi.com/aaapi.cgi?"
+            search += "q=get:new1000-"
+            search += "!1900,2018-"
+            search += "!0,5-"
+            search += "!0,10-"
+            search += "!" + whatGenre + "-"
+            search += "!Any-"
+            search += "!Any-"
+            search += "!Any-"
+            search += "!gt100-"
+            search += "!{ }"
+            search += "&t=ns"
+            search += "&cl=" + whatCode
+            search += "&st=adv"
+            search += "&ob=Relevance"
+            search += "&p=1"
+            search += "&sa=and"
+            
+            var settings =
+            {
+                "async": true,
+                "crossDomain": true,
+                "url": search,
+                "method": "GET",
+                "headers": {
+                    "x-rapidapi-host": "unogs-unogs-v1.p.rapidapi.com",
+            // ENTER API KEY
+                    "x-rapidapi-key": ""
+                }
+            }
+            $.ajax(settings).done(function (response) {
+                
+                var randomArray = response.ITEMS.length;
+                if (randomArray > 0) {
+                    
+                    for (i=0; i<4; i++) {
+                        var whichMovie = Math.floor(Math.random() * randomArray);
+                    var imgURL = response.ITEMS[whichMovie].image;
+                    var synop = response.ITEMS[whichMovie].synopsis;
+                    var id = '#' + (i + 1);
+                    var netID = response.ITEMS[whichMovie].netflixid;
+                    var netURL = "https://www.netflix.com/watch/" + netID;
+                    $(id).attr('src', imgURL);
+                    $(id).attr('href', netURL);
+                    $(id).attr('data-caption', synop);
+                    }
+                    
+                }
+            });
+                }
+                
+            }
+
+            $.get("https://ipinfo.io", function(response) {
+                        var userCountry = response.country;
+                                    ajaxCall(userCountry);
+                    }, "jsonp");
+
+
+           
+          
+        });
+
+
+        function creatingCarousel(ajax) {
+            // starting dynamically creating carousel
+            var randomArr = ajax.ITEMS.length;
+            if ($("#selections").val() <= ajax.ITEMS.length) {
+                var i;
+                for (i = 0; i < $("#selections").val(); i++) {
+                    var random = Math.floor(Math.random() * randomArr);
+                    //making carousel item div and giving it an id matching i and href matching the arr
+                    var newDiv = $("<div>");
+                    newDiv.addClass("carousel-item red white-text");
+                    newDiv.css("border", "1px solid black");
+                    newDiv.css("height", "800px");
+                    var secondDiv = $("<div>");
+                    secondDiv.addClass("valign-wrapper");
+                    secondDiv.css("background-color", "black");
+                    secondDiv.css("width", "85%");
+                    secondDiv.css("position", "absolute");
+                    secondDiv.css("top", "5%");
+                    secondDiv.css("right", "5%");
+                    secondDiv.css("border-radius", "4px");
+                    secondDiv.css("border", "white solid 1px");
+                    //making new image with movie poster from response
+                    var newImage = $("<img>");
+                    newImage.addClass("responsive-img");
+                    newImage.css("width", "300px");
+                    newImage.css("border", "black 1px solid");
+                    newImage.css("padding", "5px 5px 10px 5px");
+                    
+                    var newLink = $("<a>");
+                    var netflixID = ajax.ITEMS[random].netflixid;
+                    var netflixURL = "https://www.netflix.com/watch/" + netflixID;
+                    newLink.attr('href', netflixURL);
+                    newLink.attr('target', "_blank");
+                    
+                    newImage.attr("src", ajax.ITEMS[random].image);
+                    newLink.append(newImage);
+                    //making mini div with movie information
+                    var movieTitle = $("<h9>");
+                    movieTitle.text(ajax.ITEMS[random].title);
+                    var moviePlot = $("<p>");
+                    moviePlot.text(ajax.ITEMS[random].synopsis);
+                    var movieRating = $("<p>");
+                    movieRating.text(ajax.ITEMS[random].rating + " /10 as chosen by IMBD users");
+                    var movieLength = $("<p>");
+                    movieLength.text(ajax.ITEMS[random].runtime);
+               
+                    secondDiv.append(newLink);
+                    secondDiv.append(movieTitle);
+                    secondDiv.append(moviePlot);
+                    secondDiv.append(movieRating);
+                    secondDiv.append(movieLength);
+                    newDiv.append(secondDiv);
+       
+                    $(".carousel").append(newDiv);
+       
+                }
+                $('.carousel.carousel-slider').carousel(
+                    {
+                        fullWidth: true,
+                        indicators: true
+                    });
+            }
+            else {
+                if (ajax.ITEMS.length === 0) {
+                    var newDiv = $("<div>");
+                    newDiv.css("color", "white");
+                    newDiv.text("No movies found.");
+                    $(".carousel").append(newDiv);
+                }
+                else {
+                    var i;
+                    for (i = 0; i < ajax.ITEMS.length; i++) {
+                        var random = Math.floor(Math.random() * randomArr);
+                        //making carousel item div and giving it an id matching i and href matching the arr
+                        var newDiv = $("<div>");
+                        newDiv.addClass("carousel-item red white-text");
+                        newDiv.css("border", "1px solid black");
+                        newDiv.css("height", "800px");
+                        var secondDiv = $("<div>");
+                        secondDiv.addClass("valign-wrapper");
+                        secondDiv.css("background-color", "black");
+                        secondDiv.css("width", "85%");
+                        secondDiv.css("position", "absolute");
+                        secondDiv.css("top", "5%");
+                        secondDiv.css("right", "5%");
+                        secondDiv.css("border-radius", "4px");
+                        secondDiv.css("border", "white solid 1px");
+                        //making new image with movie poster from response
+                        var newImage = $("<img>");
+                        newImage.addClass("responsive-img");
+                        newImage.css("width", "300px");
+                        newImage.css("border", "black 1px solid");
+                        newImage.css("padding", "5px 5px 10px 5px");
+               
+                        newImage.attr("src", ajax.ITEMS[random].image);
+                        //making mini div with movie information
+                        var movieTitle = $("<h9>");
+                        movieTitle.text(ajax.ITEMS[random].title);
+                        var moviePlot = $("<p>");
+                        moviePlot.text(ajax.ITEMS[random].synopsis);
+                        var movieRating = $("<p>");
+                        movieRating.text(ajax.ITEMS[random].rating + " /10 as chosen by IMBD users");
+                        var movieLength = $("<p>");
+                        movieLength.text(ajax.ITEMS[random].runtime);
+        
+                        secondDiv.append(newImage);
+                        secondDiv.append(movieTitle);
+                        secondDiv.append(moviePlot);
+                        secondDiv.append(movieRating);
+                        secondDiv.append(movieLength);
+                        newDiv.append(secondDiv);
+            
+                        $(".carousel").append(newDiv);
+                 
+                    }
+                    $('.carousel.carousel-slider').carousel(
+                        {
+                            fullWidth: true,
+                            indicators: true
+                        });
+                }
+            }
+
+        };
+        
+        $("#searchBtn").on("click", function () {
+
+            if ($("#countries").val() !== null && $("#genres").val() !== null && $("#selections").val() !== null)
+            { 
+         
+            $(".carousel").html("");
+            var watchNowBtn = $("<a>");
+            watchNowBtn.addClass("btn-floating pulse hey");
+            watchNowBtn.attr("id", "pulsebutton");
+            var watchNowBtnAppearance = $("<i>");
+            watchNowBtnAppearance.addClass("material-icons");
+            watchNowBtnAppearance.text("Watch Random Now!");
+            watchNowBtnAppearance.attr("id", "pulsebtn");
+            watchNowBtn.append(watchNowBtnAppearance);
+            $(".pulse").append(watchNowBtn);
+            var countryCode = $("#countries").val();
+
+            var genreCode = $("#genres").val();
+
+            var queryURL = "https://unogs-unogs-v1.p.rapidapi.com/aaapi.cgi?"
+            queryURL += "q=get:new1000-"
+            queryURL += "!1900,2018-"
+            queryURL += "!0,5-"
+            queryURL += "!0,10-"
+            queryURL += "!" + genreCode + "-"
+            queryURL += "!Any-"
+            queryURL += "!Any-"
+            queryURL += "!Any-"
+            queryURL += "!gt100-"
+            queryURL += "!{ }"
+            queryURL += "&t=ns"
+            queryURL += "&cl=" + countryCode
+            queryURL += "&st=adv"
+            queryURL += "&ob=Relevance"
+            queryURL += "&p=1"
+            queryURL += "&sa=and"
+            var settings =
+            {
+                "async": true,
+                "crossDomain": true,
+                "url": queryURL,
+                "method": "GET",
+                "headers": {
+                    "x-rapidapi-host": "unogs-unogs-v1.p.rapidapi.com",
+
+            // ENTER API KEY 
+                    "x-rapidapi-key": ""
+                }
+            }
+            $.ajax(settings).done(function (response) {
+                var parse = JSON.stringify(response);
+                localStorage.clear();
+                console.log(parse);
+                localStorage.setItem("history", parse);
+
+                var randomArr = response.ITEMS.length;
+                if (randomArr > 0) {
+                    var whatMovie = Math.floor(Math.random() * randomArr);
+                    var btnTitle = response.ITEMS[whatMovie].netflixid;
+                    var btnURL = "https://www.netflix.com/watch/" + btnTitle;
+                    watchNowBtn.attr('href', btnURL);
+                }
+
+                creatingCarousel(response);
+            });
+        } else
+        {
+            $(".moviez").html("");
+            var newDiv = $("<div>");
+                    newDiv.css("color", "white");
+                    newDiv.text("Make sure all drop-down menus have selected an input.");
+                    $(".carousel").append(newDiv);
+        }
+        })
+
+        var historyObject = JSON.parse(localStorage.getItem("history"));
+
+        if (historyObject !== null && historyObject !== 0 && historyObject !== undefined && historyObject !== "[object Object],[object Object]") {
+            for (i = 0; i < historyObject.ITEMS.length && i < 4; i++) {
+
+                var newDiv = $("<div>");
+                newDiv.addClass("carousel-item red white-text");
+                newDiv.css("border", "1px solid black");
+                newDiv.css("height", "800px");
+                var secondDiv = $("<div>");
+                secondDiv.addClass("valign-wrapper");
+                secondDiv.css("background-color", "black");
+                secondDiv.css("width", "85%");
+                secondDiv.css("position", "absolute");
+                secondDiv.css("top", "5%");
+                secondDiv.css("right", "5%");
+                secondDiv.css("border-radius", "4px");
+                secondDiv.css("border", "white solid 1px");
+                //making new image with movie poster from response
+                var newImage = $("<img>");
+                newImage.addClass("responsive-img");
+                newImage.css("width", "300px");
+                newImage.css("border", "black 1px solid");
+                newImage.css("padding", "5px 5px 10px 5px");
+
+                var newLink = $("<a>");
+                    var netflixID = historyObject.ITEMS[i].netflixid;
+                    var netflixURL = "https://www.netflix.com/watch/" + netflixID;
+                    newLink.attr('href', netflixURL);
+                    newLink.attr('target', "_blank");
+                    
+                newImage.attr("src", historyObject.ITEMS[i].image);
+                //making mini div with movie information
+                var movieTitle = $("<h9>");
+                movieTitle.text(historyObject.ITEMS[i].title);
+                var moviePlot = $("<p>");
+                moviePlot.text(historyObject.ITEMS[i].synopsis);
+                var movieRating = $("<p>");
+                movieRating.text(historyObject.ITEMS[i].rating + " /10 as chosen by IMBD users");
+                var movieLength = $("<p>");
+                movieLength.text(historyObject.ITEMS[i].runtime);
+                newLink.append(newImage);
+                secondDiv.append(newLink);
+                secondDiv.append(movieTitle);
+                secondDiv.append(moviePlot);
+                secondDiv.append(movieRating);
+                secondDiv.append(movieLength);
+                newDiv.append(secondDiv);
+                $(".carousel").append(newDiv);
+            }
+            $('.carousel.carousel-slider').carousel(
+                {
+                    fullWidth: true,
+                    indicators: true
+                });
+        } else {
+        }
+
+        $('.dropdown-trigger').dropdown
+            ({
+            });
+        $('image').on("click", function () {
+
+        })
+    </script>
+</body>
+
+</html>
+
+
+<!-- Object:
+COUNT: "32"
+ITEMS: Array(32)
+0:
+download: "1"
+image: "https://occ-0-2219-2218.1.nflxso.net/dnm/api/v6/XsrytRUxks8BtTRf9HNlZkW2tvY/AAAABRiPIAVRnSybl_joINOjJw7FepvHyJyTXXC-kgc8fVnkdmKKbhozo1y8aX-t2g2dmELp3XKuNfOqaynTYMC0RuVesg.jpg?r=97c"
+imdbid: "tt0116126"
+largeimage: "http://cdn0.nflximg.net/images/4156/10924156.jpg"
+netflixid: "452508"
+rating: "6.6"
+released: "1996"
+runtime: "1h28m"
+synopsis: "In this goofy send-up of the gritty urban movies of the early 1990s, Ashtray moves to South Central L.A. and falls in with his gang-banging cousin.<br><b>New on 2019-12-04</b>"
+title: "Don&#39;t Be a Menace to South Central While Drinking Your Juice in the Hood"
+type: "movie"
+unogsdate: "2019-12-04" -->
+
